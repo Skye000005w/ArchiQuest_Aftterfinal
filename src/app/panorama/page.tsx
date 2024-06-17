@@ -71,9 +71,9 @@ export default function App() {
     const generateInitialPanorama = async () => {
       if (prompt) {
         const newPrompt =
-          "A photograph of " +
+          "A masterpice high resolution distant view photograph of " +
           prompt +
-          " possibly containing rare and exotic creatures. Canon EOS 5D Mark IV 24mm f/8 1/250s ISO 100 2019";
+          " possibly containing rare, vivid, and exotic creatures . Canon EOS 5D Mark IV 24mm f/8 1/250s ISO 100 2019";
 
         const pano = await generateImageFal(newPrompt);
         if (pano) {
@@ -94,9 +94,9 @@ export default function App() {
 
   const makeNextImage = async () => {
     const newPrompt =
-      "A photograph of " +
+      "A masterpice high resolution distant view photograph of " +
       prompt +
-      " possibly containing rare and exotic creatures. Canon EOS 5D Mark IV 24mm f/8 1/250s ISO 100 2019";
+      " possibly containing rare, vivid, and exotic creatures . Canon EOS 5D Mark IV 24mm f/8 1/250s ISO 100 2019";
 
     const pano = await getPanorama(newPrompt);
     if (pano) {
