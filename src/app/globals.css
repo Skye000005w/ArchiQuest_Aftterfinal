@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+}
+
+body {
+  background: rgb(240, 240, 240, 1);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+@font-face {
+  font-family: 'Old English Text MT';
+  src: url('/fonts/OldEnglishTextMT.ttf') format('truetype');
+}
+
+.font-old-english {
+  font-family: 'Old English Text MT', serif;
+}
