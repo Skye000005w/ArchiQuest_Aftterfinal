@@ -9,12 +9,7 @@ import { useState, useEffect, useRef } from "react";
 import { saveScore } from "@/supabase/supabase";
 import EndPage from "./endpage";
 import { getGroqCompletion } from "@/ai/groq";
-
-const musicUrls = [
-  'audio/CanopyWhispers.mp3',
-  'audio/CoralSerenity.mp3',
-  'audio/RainforestRhapsody.mp3'
-];
+import MusicPlayer from "@/components/MusicPlayer";
 
 export default function App() {
   const [fetching, setFetching] = useState<boolean>(true);
@@ -71,9 +66,9 @@ export default function App() {
     const generateInitialPanorama = async () => {
       if (prompt) {
         const newPrompt =
-          "A masterpice high resolution distant view photograph of " +
+          "A photograph of " +
           prompt +
-          " possibly containing rare, vivid, and exotic creatures . Canon EOS 5D Mark IV 24mm f/8 1/250s ISO 100 2019";
+          " possibly containing rare and exotic creatures. Canon EOS 5D Mark IV 24mm f/8 1/250s ISO 100 2019";
 
         const pano = await generateImageFal(newPrompt);
         if (pano) {
@@ -94,9 +89,9 @@ export default function App() {
 
   const makeNextImage = async () => {
     const newPrompt =
-      "A masterpice high resolution distant view photograph of " +
+      "A photograph of " +
       prompt +
-      " possibly containing rare, vivid, and exotic creatures . Canon EOS 5D Mark IV 24mm f/8 1/250s ISO 100 2019";
+      " possibly containing rare and exotic creatures. Canon EOS 5D Mark IV 24mm f/8 1/250s ISO 100 2019";
 
     const pano = await getPanorama(newPrompt);
     if (pano) {
@@ -104,13 +99,6 @@ export default function App() {
       console.log("got pano");
     }
   };
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.src = musicUrls[prompts.indexOf(prompt)];
-      audioRef.current.play();
-    }
-  }, [prompt]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -136,6 +124,7 @@ export default function App() {
           return prevCountdown - 1;
         } else {
           clearInterval(timer);
+          handleSaveScore();
           return 0;
         }
       });
@@ -154,12 +143,6 @@ export default function App() {
       setCountdown((prevCountdown) => prevCountdown + 30);
     }
   }, [score, bonusTime]);
-
-  useEffect(() => {
-    if (countdown === 0) {
-      handleSaveScore();
-    }
-  }, [countdown]);
 
   const handleSelect = async (imgUrl: string) => {
     setPlaceholderVisible(true);
@@ -224,8 +207,6 @@ export default function App() {
         setPlaceholderVisible(false);
         setUpscaledImg("");
         setSpeciesAnalysis("");
-      } else {
-        handleSaveScore();
       }
     }
   };
@@ -235,11 +216,11 @@ export default function App() {
     if (playerName) {
       try {
         await saveScore(playerName, score, "");
+        setShowEndPage(true);
       } catch (error) {
         console.error("Error saving score:", error);
       }
     }
-    setShowEndPage(true);
   };
 
   return (
@@ -250,7 +231,6 @@ export default function App() {
         </div>
       ) : (
         <>
-          <audio ref={audioRef} loop />
           <main className="flex flex-col w-full h-screen min-h-screen font-serif text-xl mb-2 rounded">
             <div className="flex justify-between gap-4 m-2">
               <button
@@ -337,6 +317,16 @@ export default function App() {
               )}
             </div>
           </main>
+          <MusicPlayer />
+          {showEndPage && (
+            <EndPage
+              playerName={localStorage.getItem("playerName") || ""}
+              score={score}
+              backpack={backpack}
+              onClose={() => setShowEndPage(false)}
+            />
+          )}
+       
           {showEndPage && (
             <EndPage
               playerName={localStorage.getItem("playerName") || ""}
