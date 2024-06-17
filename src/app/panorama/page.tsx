@@ -317,16 +317,7 @@ export default function App() {
               )}
             </div>
           </main>
-          <MusicPlayer />
-          {showEndPage && (
-            <EndPage
-              playerName={localStorage.getItem("playerName") || ""}
-              score={score}
-              backpack={backpack}
-              onClose={() => setShowEndPage(false)}
-            />
-          )}
-       
+          <MusicPlayer autoPlay loop />
           {showEndPage && (
             <EndPage
               playerName={localStorage.getItem("playerName") || ""}

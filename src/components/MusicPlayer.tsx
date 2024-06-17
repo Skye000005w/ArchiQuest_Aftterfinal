@@ -7,10 +7,21 @@ const musicUrls = [
   "/audio/RainforestRhapsody.mp3",
 ];
 
-export default function MusicPlayer() {
-  const [isPlaying, setIsPlaying] = useState(false);
+interface MusicPlayerProps {
+  autoPlay?: boolean;
+  loop?: boolean;
+}
+
+export default function MusicPlayer({ autoPlay = false, loop = false }: MusicPlayerProps) {
+  const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    if (autoPlay) {
+      audioRef.current?.play();
+    }
+  }, [autoPlay]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -18,7 +29,7 @@ export default function MusicPlayer() {
     } else {
       audioRef.current?.pause();
     }
-  }, [isPlaying]);
+  }, [isPlaying, currentTrackIndex]);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -26,6 +37,8 @@ export default function MusicPlayer() {
 
   const handleNextTrack = () => {
     setCurrentTrackIndex((prevIndex) => (prevIndex + 1) % musicUrls.length);
+    setIsPlaying(false);  // Stop the current track
+    setTimeout(() => setIsPlaying(true), 0);  // Play the next track
   };
 
   return (
@@ -33,8 +46,7 @@ export default function MusicPlayer() {
       <audio
         ref={audioRef}
         src={musicUrls[currentTrackIndex]}
-        loop
-        onEnded={handleNextTrack}
+        loop={loop}
       />
       <button onClick={handlePlayPause} className="mr-4">
         {isPlaying ? <FaPause size={24} /> : <FaPlay size={24} />}
