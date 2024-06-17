@@ -1,5 +1,4 @@
 "use client";
-
 import { Canvas, useThree } from "@react-three/fiber";
 import {
   Environment,
@@ -12,10 +11,12 @@ import { SelectionArea } from "./SelectImageRegion";
 export default function Panorama({
   img,
   onSelect,
+  onRightClick,
   immersive = true,
 }: {
   img: string;
-  onSelect: (imgUrl: string) => void;
+  onSelect?: (imgUrl: string) => void;
+  onRightClick?: (dir: string) => void;
   immersive: boolean;
 }) {
   const [fov, setFov] = useState(100);
@@ -29,6 +30,7 @@ export default function Panorama({
   const [finalSelection, setFinalSelection] = useState<SelectionArea | null>(
     null
   );
+  const [controlsDisabled, setControlsDisabled] = useState(false);
   const selectionBoxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -41,10 +43,12 @@ export default function Panorama({
   };
 
   const handleMouseDown = (e: any) => {
-    if (e.shiftKey) {
+    if (e.button === 0 && controlsDisabled) {
       setIsSelecting(true);
       const { offsetX, offsetY } = e.nativeEvent;
       setSelection({ x: offsetX, y: offsetY, width: 0, height: 0 });
+    } else if (e.button === 2 && onRightClick) {
+      onRightClick("right");
     }
   };
 
@@ -60,8 +64,10 @@ export default function Panorama({
   };
 
   const handleMouseUp = () => {
-    setIsSelecting(false);
-    setFinalSelection(selection);
+    if (isSelecting) {
+      setIsSelecting(false);
+      setFinalSelection(selection);
+    }
   };
 
   useEffect(() => {
@@ -86,11 +92,14 @@ export default function Panorama({
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onKeyDown={(e) => setControlsDisabled(e.key === "Shift")}
+        onKeyUp={() => setControlsDisabled(false)}
         tabIndex={0}
         gl={{ preserveDrawingBuffer: true }}
       >
         <Environment files={img} background />
         <OrbitControls
+          enabled={!controlsDisabled}
           target={[1, 0, 0]}
           maxPolarAngle={immersive ? Math.PI : Math.PI - Math.PI / 3}
           minPolarAngle={immersive ? 0 : Math.PI / 3}
@@ -101,7 +110,12 @@ export default function Panorama({
           autoRotateSpeed={0.2}
         />
         <PerspectiveCamera makeDefault position={[0, 0, 0]} fov={fov} />
-        <SelectionHandler selectionArea={finalSelection} onSelect={onSelect} />
+        {onSelect && (
+          <SelectionHandler
+            selectionArea={finalSelection}
+            onSelect={onSelect}
+          />
+        )}
       </Canvas>
       <div
         ref={selectionBoxRef}

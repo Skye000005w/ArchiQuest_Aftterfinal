@@ -35,4 +35,3 @@ export const getScores = async () => {
 
   return data;
 };
-
